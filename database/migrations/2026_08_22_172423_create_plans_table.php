@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CycleUnit;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,6 +15,9 @@ return new class extends Migration
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->text('description')->nullable();
+            $table->json('attributes')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
 
@@ -24,9 +28,10 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
             $table->string('name');
-            $table->unsignedInteger('cycle_count')->default(1);
-            $table->string('cycle_unit')->default('month');
             $table->decimal('price', 12, 2)->default(0);
+            $table->unsignedInteger('cycle_count')->default(1);
+            $table->enum('cycle_unit', CycleUnit::cases())->default(CycleUnit::MONTH->value);
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }

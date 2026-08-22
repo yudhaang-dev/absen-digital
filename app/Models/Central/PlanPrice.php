@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['plan_id', 'name', 'cycle', 'price'])]
+#[Fillable(['plan_id', 'name', 'cycle_count', 'price', 'cycle_unit'])]
 class PlanPrice extends Model
 {
     /**

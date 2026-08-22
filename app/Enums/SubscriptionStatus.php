@@ -51,4 +51,13 @@ enum SubscriptionStatus: string
             default => false,
         };
     }
+
+    public static function toSelectOptions(): array
+    {
+        return array_map(fn (self $enum) => [
+            'value' => $enum->value,
+            'label' => $enum->label(),
+            'color' => $enum->color(), // Bonus: Bisa dipakai untuk styling badge langsung di dropdown React
+        ], self::cases());
+    }
 }
