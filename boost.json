@@ -1,0 +1,17 @@
+{
+    "agents": ["opencode"],
+    "cloud": false,
+    "packages": ["spatie/laravel-permission"],
+    "skills": [
+        "infer-conventions",
+        "laravel-best-practices",
+        "wayfinder-development",
+        "pest-testing",
+        "inertia-react-development",
+        "tailwindcss-development",
+        "laravel-permission-development",
+        "shadcn",
+        "shadcn-component-discovery",
+        "shadcn-component-review"
+    ]
+}
