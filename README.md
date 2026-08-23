@@ -13,7 +13,7 @@ Multi-tenant SaaS attendance management system built with Laravel 13 and React 1
 ### Key Architectural Decisions
 
 | Decision | Summary | ADR |
-|----------|---------|-----|
+| ---------- | --------- | ----- |
 | **Service-Repository Pattern** | Hybrid layered architecture for business logic | [ADR-0001](docs/architecture/decisions/0001-service-repository-pattern.md) |
 | **Package-Based Architecture** | Internal packages for domain modules | [ADR-0002](docs/architecture/decisions/0002-package-based-architecture.md) |
 | **Frontend Feature Modules** | Domain-driven React organization | [ADR-0003](docs/architecture/decisions/0003-frontend-feature-modules.md) |
@@ -61,7 +61,8 @@ composer run dev
 ```
 
 The application will be available at:
-- Central: http://localhost:8000
+
+- Central: <http://localhost:8000>
 - Tenant: http://{tenant-slug}.localhost:8000
 
 ---
@@ -159,12 +160,14 @@ php artisan typescript:generate
 ## 🧪 Testing Strategy
 
 **Phase-Based Approach:**
+
 - **Week 1-4:** Rapid prototyping (no tests)
 - **Week 5-8:** Feature tests for critical flows (auth, billing, tenant isolation)
 - **Week 9+:** Unit tests for complex business logic
 - **Target:** 60-70% coverage (not 100%)
 
 **Priority:**
+
 1. High: Authentication, billing, tenant isolation
 2. Medium: CRUD operations, validations
 3. Low: Getters/setters, simple helpers
@@ -174,6 +177,7 @@ php artisan typescript:generate
 ## 📚 Tech Stack
 
 ### Backend
+
 - **Framework:** Laravel 13.17
 - **PHP:** 8.3
 - **Database:** MySQL 8.0
@@ -182,6 +186,7 @@ php artisan typescript:generate
 - **Testing:** Pest
 
 ### Frontend
+
 - **Framework:** React 19
 - **Language:** TypeScript 5.9
 - **Routing:** Inertia.js 3.0
@@ -197,14 +202,17 @@ php artisan typescript:generate
 **Architecture:** Database per tenant
 
 **Identification:** Domain/subdomain-based
+
 - Central: `absen.digital`, `localhost`
 - Tenant: `{slug}.absen.digital` or custom domain
 
 **Data Isolation:**
+
 - Central DB: `abdigi_central` (tenants, plans, subscriptions)
 - Tenant DB: `absen_digital_tenant_{uuid}` (attendance, employees)
 
 **Benefits:**
+
 - Perfect data isolation (zero risk of data leakage)
 - Easy per-tenant backup/restore
 - Horizontal scaling (distribute databases)
@@ -236,6 +244,7 @@ php artisan typescript:generate
 ### Code Quality Checks
 
 All PRs must pass:
+
 - ✅ PHP linting (Pint)
 - ✅ PHP static analysis (PHPStan)
 - ✅ TypeScript linting (ESLint)
@@ -265,17 +274,17 @@ This project is proprietary software. All rights reserved.
 
 ## 👥 Team
 
-- **Technical Lead:** [Name]
-- **Backend Team:** [Names]
-- **Frontend Team:** [Names]
-- **DevOps:** [Names]
+- **Technical Lead:** Yudha Angga Wijaya
+- **Backend Team:** Yudha Angga Wijaya
+- **Frontend Team:** Yudha Angga Wijaya
+- **DevOps:** Yudha Angga Wijaya
 
 ---
 
 ## 📞 Support
 
-- **Slack:** #absen-digital-dev
-- **Email:** dev@absen.digital
+- **Slack:** #YudhaAng-Dev
+- **Email:** <dev.yudhaang@gmail.com>
 - **Documentation:** [Internal Wiki URL]
 
 ---

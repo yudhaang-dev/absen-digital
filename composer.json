@@ -1,13 +1,24 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/blank-react-starter-kit",
+    "name": "yudhaang-dev/absen-digital",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Digital Attendance and Attendance System built with Laravel, Inertia.js, and Multi-tenancy Support.",
     "keywords": [
         "laravel",
-        "framework"
+        "saas",
+        "attendance",
+        "multi-tenancy",
+        "inertiajs"
     ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Yudha Angga Wijaya",
+            "email": "dev.yudhaang@gmail.com",
+            "homepage": "https://github.com/yudhaang-dev",
+            "role": "Lead Developer"
+        }
+    ],
     "require": {
         "php": "^8.3",
         "inertiajs/inertia-laravel": "^3.0",
@@ -63,9 +74,9 @@
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
-            "npm run lint:check",
+            "@lint:check",
             "npm run format:check",
-            "npm run types:check",
+            "@types:check",
             "@test"
         ],
         "types:check": [
@@ -73,8 +84,6 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@lint:check",
-            "@types:check",
             "@php artisan test"
         ],
         "post-autoload-dump": [
@@ -111,5 +120,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

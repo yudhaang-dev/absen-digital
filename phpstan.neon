@@ -10,4 +10,13 @@ parameters:
         - database/
         - routes/
 
-    level: 7
+    # Level 8-9 adalah standar profesional untuk aplikasi SaaS/Enterprise demi tipe data yang super ketat
+    level: 8
+
+    # Konfigurasi khusus Larastan untuk memproses arsitektur Laravel secara akurat
+    checkGenericClassInNonGenericObjectType: false
+    checkMissingIterableValueType: false
+
+    # Mengabaikan error bawaan framework atau package pihak ketiga yang tidak krusial
+    ignoreErrors:
+        - '#Background.*?not found#'
