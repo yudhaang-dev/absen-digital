@@ -1,0 +1,206 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, mysql, bcmath, pcntl
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Pint (Code Style)
+        run: vendor/bin/pint --test
+
+      - name: Run PHPStan (Static Analysis)
+        run: vendor/bin/phpstan analyse
+
+      - name: Run Pest (Tests)
+        run: vendor/bin/pest
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+
+      - name: Run Frontend Lint
+        run: pnpm lint:check
+
+      - name: Run TypeScript Check
+        run: pnpm types:check
+
+      - name: Build Frontend Assets
+        run: pnpm build
+
+      - name: Create deployment artifact
+        run: |
+          mkdir -p artifact
+          tar --exclude='.git' \
+              --exclude='node_modules' \
+              --exclude='tests' \
+              --exclude='storage/logs/*' \
+              --exclude='storage/framework/cache/*' \
+              --exclude='storage/framework/sessions/*' \
+              --exclude='storage/framework/views/*' \
+              -czf artifact/release.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-production-${{ github.sha }}
+          path: artifact/release.tar.gz
+          retention-days: 30
+
+  deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://absen.digital
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-production-${{ github.sha }}
+          path: artifact
+
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@master
+        env:
+          RELEASE_TIMESTAMP: ${{ github.run_number }}-${{ github.sha }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          envs: RELEASE_TIMESTAMP
+          script: |
+            cd ${{ secrets.PRODUCTION_PATH }}
+            
+            # Create release directory
+            mkdir -p releases/$RELEASE_TIMESTAMP
+            cd releases/$RELEASE_TIMESTAMP
+            
+            # Extract artifact (will be transferred separately)
+            
+            # Symlink shared resources
+            ln -sfn ../../shared/.env .env
+            ln -sfn ../../shared/storage storage
+            
+            # Install production dependencies
+            composer install --no-dev --optimize-autoloader --no-interaction
+            
+            # Run optimizations
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+            
+            # NOTE: Migrations should be run manually in production
+            # Uncomment if you want auto-migrate (not recommended)
+            # php artisan migrate --force
+            
+            # Atomic symlink swap
+            ln -sfn releases/$RELEASE_TIMESTAMP ${{ secrets.PRODUCTION_PATH }}/current_tmp
+            mv -Tf ${{ secrets.PRODUCTION_PATH }}/current_tmp ${{ secrets.PRODUCTION_PATH }}/current
+            
+            # Reload services
+            sudo systemctl reload php8.3-fpm
+            sudo supervisorctl restart production-worker:*
+            
+            # Cleanup old releases (keep last 5)
+            cd ${{ secrets.PRODUCTION_PATH }}/releases
+            ls -t | tail -n +6 | xargs -r rm -rf
+            
+            echo "Production deployed: $RELEASE_TIMESTAMP"
+
+      - name: Health Check
+        run: |
+          sleep 5
+          curl -f https://absen.digital/health || exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.PRODUCTION_PATH }}
+            PREVIOUS_RELEASE=$(ls -t releases | sed -n '2p')
+            if [ -n "$PREVIOUS_RELEASE" ]; then
+              ln -sfn releases/$PREVIOUS_RELEASE current
+              sudo systemctl reload php8.3-fpm
+              sudo supervisorctl restart production-worker:*
+              echo "Rollback to: $PREVIOUS_RELEASE"
+            fi

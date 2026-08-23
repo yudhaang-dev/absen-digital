@@ -1,12 +1,33 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  # 1. Mengawasi update untuk GitHub Actions (Punya Anda)
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     cooldown:
       default-days: 5
     groups:
       github-actions:
         patterns:
-          - "*"
+          - '*'
+
+  # 2. TAMBAHAN: Mengawasi update package Composer (Laravel/PHP)
+  - package-ecosystem: 'composer'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    groups:
+      laravel-packages:
+        patterns:
+          - 'laravel/*'
+          - 'spatie/*'
+          - 'pestphp/*'
+
+  # 3. TAMBAHAN: Mengawasi update package NPM (Vite/Inertia/React)
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
