@@ -163,7 +163,7 @@ $attendances = Attendance::where('employee_id', $employeeId)->get();
 Separate physical database for each tenant.
 
 ```
-Database: abdigi_central
+Database: absen_digital_central
 ├── tenants
 ├── domains
 ├── plans
@@ -227,7 +227,7 @@ $attendances = Attendance::where('employee_id', $employeeId)->get();
 Central database for tenant management, separate databases for tenant data.
 
 ```
-Database: abdigi_central (shared)
+Database: absen_digital_central (shared)
 ├── tenants
 ├── domains
 ├── plans
@@ -342,7 +342,7 @@ $data = Employee::all(); // Only tenant A's employees
 
 ```
 Central Database:
-abdigi_central
+absen_digital_central
 
 Tenant Databases:
 absen_digital_tenant_{uuid}
@@ -354,7 +354,7 @@ absen_digital_tenant_01h2xcejtqf2nxs9jp6rbpk8h4
 
 ### Central Database Schema
 
-**Tables in `abdigi_central`:**
+**Tables in `absen_digital_central`:**
 ```sql
 -- Tenant management
 tenants (id, uuid, data, created_at, updated_at)
@@ -552,7 +552,7 @@ $plans = Plan::on('central')->where('is_active', true)->get();
 **Single Server (Start):**
 ```
 MySQL Server: localhost
-├── abdigi_central
+├── absen_digital_central
 ├── absen_digital_tenant_uuid1
 ├── absen_digital_tenant_uuid2
 └── ... (up to ~500 tenants)
@@ -561,7 +561,7 @@ MySQL Server: localhost
 **Multiple Servers (Scale):**
 ```
 MySQL Server 1 (central):
-└── abdigi_central
+└── absen_digital_central
 
 MySQL Server 2 (tenants A-M):
 ├── absen_digital_tenant_acme_uuid
@@ -584,7 +584,7 @@ MySQL Server 4 (large tenants):
 'connections' => [
     'central' => [
         'host' => env('DB_CENTRAL_HOST', '127.0.0.1'),
-        'database' => env('DB_CENTRAL_DATABASE', 'abdigi_central'),
+        'database' => env('DB_CENTRAL_DATABASE', 'absen_digital_central'),
     ],
     
     'tenant' => [

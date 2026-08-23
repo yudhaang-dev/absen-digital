@@ -226,7 +226,7 @@ features/subscription/hooks/useCreateSubscription.ts
 
 **Structure:**
 ```
-Database: abdigi_central
+Database: absen_digital_central
 ├── tenants
 ├── domains
 ├── plans

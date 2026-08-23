@@ -214,6 +214,9 @@ php artisan typescript:generate
 
 ## 📖 Documentation
 
+- **[AGENTS.md](AGENTS.md)** - Operating rules for AI coding agents (read this first)
+- **[Product Requirements](docs/product/PRD.md)** - Product spec index (lean)
+- **[Roadmap & Status](docs/product/ROADMAP.md)** - Per-sub-feature tracker
 - **[Architecture Decisions](docs/architecture/)** - Why we made certain technical choices
 - **[API Documentation](docs/api/)** - API endpoints and usage *(coming soon)*
 - **[Deployment Guide](docs/deployment/)** - How to deploy to production *(coming soon)*

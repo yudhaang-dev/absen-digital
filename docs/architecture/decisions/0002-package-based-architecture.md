@@ -27,7 +27,7 @@ Without clear organization, developers waste time searching for files and accide
 
 Additionally, the multi-tenant architecture requires strict separation:
 
-- **Central context:** Managing tenants, subscriptions, plans (abdigi_central database)
+- **Central context:** Managing tenants, subscriptions, plans (absen_digital_central database)
 - **Tenant context:** Attendance, employees, shifts (tenant-specific databases)
 
 Mixing these contexts in a flat `app/` structure is error-prone.
@@ -339,13 +339,14 @@ packages/{package-name}/
 
 1. **`packages/shared/`** - Base classes, traits, utilities (dependency for all packages)
 2. **`packages/auth/`** - Authentication & authorization
-3. **`packages/subscription/`** - Billing, plans, subscriptions
+3. **`packages/setting/`** - Application settings management
 
 **Phase 2: Domain Packages** (Implement later)
-4. `packages/tenancy/` - Tenant management
-5. `packages/attendance/` - Attendance tracking
-6. `packages/employee/` - Employee management
-7. `packages/reporting/` - Reports & analytics
+4. `packages/subscription/` - Billing, plans, subscriptions
+5. `packages/tenancy/` - Tenant management
+6. `packages/attendance/` - Attendance tracking
+7. `packages/employee/` - Employee management
+8. `packages/reporting/` - Reports & analytics
 
 ### Autoloading Configuration
 
